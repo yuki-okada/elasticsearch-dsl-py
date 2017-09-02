@@ -244,6 +244,7 @@ class Search(Request):
         self._highlight = {}
         self._highlight_opts = {}
         self._suggest = {}
+        self._collapse = {}
         self._script_fields = {}
         self._response_class = Response
 
@@ -331,6 +332,7 @@ class Search(Request):
         s._highlight = self._highlight.copy()
         s._highlight_opts = self._highlight_opts.copy()
         s._suggest = self._suggest.copy()
+        s._collapse = self._collapse.copy()
         s._script_fields = self._script_fields.copy()
         for x in ('query', 'post_filter'):
             getattr(s, x)._proxied = getattr(self, x)._proxied
@@ -379,6 +381,8 @@ class Search(Request):
                 text = self._suggest.pop('text')
                 for s in self._suggest.values():
                     s.setdefault('text', text)
+        if 'collapse' in d:
+            self._collapse = d.pop('collapse')
         if 'script_fields' in d:
             self._script_fields = d.pop('script_fields')
         self._extra = d
@@ -552,6 +556,17 @@ class Search(Request):
         s._suggest[name].update(kwargs)
         return s
 
+    def collapse(self, field, **kwargs):
+        """
+        Add a field collapsing information to the search request.
+
+        :arg field: field name used for collapsing
+        """
+        s = self._clone()
+        s._collapse = {'field': field}
+        #s._collapse.update(kwargs)
+        return s
+
     def to_dict(self, count=False, **kwargs):
         """
         Serialize the search into the dictionary that will be sent over as the
@@ -586,6 +601,9 @@ class Search(Request):
 
             if self._suggest:
                 d['suggest'] = self._suggest
+
+            if self._collapse:
+                d['collapse'] = self._collapse
 
             if self._script_fields:
                 d['script_fields'] = self._script_fields

@@ -501,6 +501,17 @@ def test_suggest():
         }
     } == s.to_dict()
 
+def test_collapse():
+    s = search.Search()
+    s = s.collapse('user')
+
+    assert {
+        'query': {'match_all': {}},
+        'collapse': {
+            'field': 'user'
+        }
+    } == s.to_dict()
+
 def test_exclude():
     s = search.Search()
     s = s.exclude('match', title='python')
