@@ -503,12 +503,36 @@ def test_suggest():
 
 def test_collapse():
     s = search.Search()
-    s = s.collapse('user')
+    s = s.collapse('user', inner_hits=[
+        {
+            'name': 'most_liked',
+            'size': 3,
+            'sort': ['likes']
+        },
+        {
+            'name': 'most_recent',
+            'size': 3,
+            'sort': [{'date': 'asc'}]
+        }
+    ], max_concurrent_group_searches=4)
 
     assert {
         'query': {'match_all': {}},
         'collapse': {
-            'field': 'user'
+            'field': 'user',
+            'inner_hits': [
+                {
+                    'name': 'most_liked',
+                    'size': 3,
+                    'sort': ['likes']
+                },
+                {
+                    'name': 'most_recent',
+                    'size': 3,
+                    'sort': [{'date': 'asc'}]
+                }
+            ],
+            'max_concurrent_group_searches': 4
         }
     } == s.to_dict()
 

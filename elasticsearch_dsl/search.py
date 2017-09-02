@@ -564,7 +564,7 @@ class Search(Request):
         """
         s = self._clone()
         s._collapse = {'field': field}
-        #s._collapse.update(kwargs)
+        s._collapse.update(kwargs)
         return s
 
     def to_dict(self, count=False, **kwargs):
